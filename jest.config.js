@@ -13,11 +13,7 @@ module.exports = {
     '^.+\\.scss$': 'jest-scss-transform',
     '^.+\\.css$': '<rootDir>/jest/mocks/cssMock.js',
   },
-  transformIgnorePatterns: [
-    '[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs|cjs|ts|tsx)$',
-    '^.+\\.module\\.(css|sass|scss)$',
-    '<rootDir>/node_modules/(?!lodash-es)',
-  ],
+  transformIgnorePatterns: ['^.+\\.module\\.(css|sass|scss)$'],
   moduleNameMapper: {
     '^.+\\.module\\.(css|sass|scss)$': 'identity-obj-proxy',
     '\\.(png|jpg|svg|ttf|woff|woff2)$': 'identity-obj-proxy',
