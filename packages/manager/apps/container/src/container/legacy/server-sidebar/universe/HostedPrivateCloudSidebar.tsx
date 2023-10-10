@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useReket } from '@ovh-ux/ovh-reket';
+import { aapi } from '@ovh-ux/manager-core-api';
 import { useTranslation } from 'react-i18next';
 import { useShell } from '@/context';
 import { sanitizeMenu, SidebarMenuItem } from '../sidebarMenu';
 import Sidebar from '../Sidebar';
-import useServiceLoader from "./useServiceLoader";
+import useServiceLoader from './useServiceLoader';
 import dedicatedShopConfig from '../order/shop-config/dedicated';
 import OrderTrigger from '../order/OrderTrigger';
 import { ShopItem } from '../order/OrderPopupContent';
@@ -47,7 +47,6 @@ export default function HostedPrivateCloudSidebar() {
   const [menu, setMenu] = useState<SidebarMenuItem>(undefined);
   const [shopItems, setShopItems] = useState<ShopItem[]>([]);
   const shell = useShell();
-  const reketInstance = useReket();
   const { loadServices } = useServiceLoader('dedicated');
   const { t, i18n } = useTranslation('sidebar');
   const navigation = shell.getPlugin('navigation');
@@ -146,7 +145,9 @@ export default function HostedPrivateCloudSidebar() {
         label: t('sidebar_network'),
         icon: getIcon('oui-icon oui-icon-bandwidth_concept'),
         minSearchItems: 0,
-        routeMatcher: new RegExp('^(/ip(/|$)|(/network)?/iplb|/vrack|/cloud-connect)'),
+        routeMatcher: new RegExp(
+          '^(/ip(/|$)|(/network)?/iplb|/vrack|/cloud-connect)',
+        ),
         subItems: [
           feature.ip && {
             id: 'hpc-ip',
@@ -163,22 +164,21 @@ export default function HostedPrivateCloudSidebar() {
             href: navigation.getURL('dedicated', '#/network-security'),
             routeMatcher: new RegExp('^/network-security'),
           },
-          feature['ip-load-balancer'] &&
-            {
-              id: 'ip-loadbalancer',
-              label: t('sidebar_pci_load_balancer'),
-              icon: getIcon('ovh-font ovh-font-iplb'),
-              routeMatcher: new RegExp('^(/network)?/iplb'),
-              async loader() {
-                const iplb = await loadServices('/ipLoadbalancing');
-                return [
-                  ...iplb.map((iplbItem) => ({
-                    ...iplbItem,
-                    icon: getIcon('ovh-font ovh-font-iplb'),
-                  })),
-                ];
-              },
+          feature['ip-load-balancer'] && {
+            id: 'ip-loadbalancer',
+            label: t('sidebar_pci_load_balancer'),
+            icon: getIcon('ovh-font ovh-font-iplb'),
+            routeMatcher: new RegExp('^(/network)?/iplb'),
+            async loader() {
+              const iplb = await loadServices('/ipLoadbalancing');
+              return [
+                ...iplb.map((iplbItem) => ({
+                  ...iplbItem,
+                  icon: getIcon('ovh-font ovh-font-iplb'),
+                })),
+              ];
             },
+          },
           feature['vrack:bare-metal-cloud'] && {
             id: 'hpc-vrack',
             label: t('sidebar_vrack'),
@@ -220,9 +220,9 @@ export default function HostedPrivateCloudSidebar() {
   };
 
   const getFeatures = (): Promise<Record<string, string>> =>
-    reketInstance.get(`/feature/${features.join(',')}/availability`, {
-      requestType: 'aapi',
-    });
+    aapi
+      .get(`/feature/${features.join(',')}/availability`)
+      .then(({ data }) => data);
 
   const { data: availability } = useQuery(
     ['sidebar-hpc-availability'],

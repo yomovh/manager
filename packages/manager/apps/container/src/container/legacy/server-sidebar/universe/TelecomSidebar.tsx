@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useReket } from '@ovh-ux/ovh-reket';
+import { aapi, v6 } from '@ovh-ux/manager-core-api';
 import { useTranslation } from 'react-i18next';
 import { capitalize } from 'lodash-es';
 import { useShell } from '@/context';
@@ -30,7 +30,6 @@ export default function TelecomSidebar() {
   const [menu, setMenu] = useState<SidebarMenuItem>(undefined);
   const [shopItems, setShopItems] = useState<ShopItem[]>([]);
   const shell = useShell();
-  const reketInstance = useReket();
   const { loadServices } = useServiceLoader('telecom');
   const { t, i18n } = useTranslation('sidebar');
   const navigation = shell.getPlugin('navigation');
@@ -44,11 +43,9 @@ export default function TelecomSidebar() {
       if (window.localStorage && window.localStorage.getItem(key) !== null) {
         resolve(['1', 'true'].includes(window.localStorage.getItem(key)));
       } else {
-        reketInstance
+        v6
           .get(`/me/preferences/manager/${key}`)
-          .then((result: any) => {
-            resolve(result?.value || false);
-          })
+          .then(({ data }) => data || false)
           .catch((error: any) => {
             if (error.status === 404) {
               resolve(false);
@@ -83,48 +80,48 @@ export default function TelecomSidebar() {
         routeMatcher: new RegExp(`^/pack`),
         ...(isBeta
           ? {
-              href: navigation.getURL('telecom', '#/pack'),
-            }
+            href: navigation.getURL('telecom', '#/pack'),
+          }
           : {
-              async loader() {
-                const xdslPack = await loadServices('/pack/xdsl');
-                const xdslStandalone = await loadServices('/xdsl/standalone');
-                return [
-                  ...xdslPack.map((xdsl) => ({
-                    ...xdsl,
-                    icon: <span className={style.telecomLabel}>Pack</span>,
-                    routeMatcher: new RegExp(`/pack/${xdsl.serviceName}`),
+            async loader() {
+              const xdslPack = await loadServices('/pack/xdsl');
+              const xdslStandalone = await loadServices('/xdsl/standalone');
+              return [
+                ...xdslPack.map((xdsl) => ({
+                  ...xdsl,
+                  icon: <span className={style.telecomLabel}>Pack</span>,
+                  routeMatcher: new RegExp(`/pack/${xdsl.serviceName}`),
+                  async loader() {
+                    const services = await loadServices(
+                      `/pack/xdsl/${xdsl.serviceName}/xdslAccess/services`,
+                    );
+                    return services.map((service) => ({
+                      ...service,
+                      keywords: service.extraParams?.length
+                        ? service.extraParams[0]
+                        : '',
+                      icon: service.extraParams?.length && (
+                        <span className={style.telecomLabel}>
+                          {capitalize(service.extraParams[0])}
+                        </span>
+                      ),
+                    }));
+                  },
+                })),
+                ...xdslStandalone.map((sdsl) => {
+                  return {
+                    ...sdsl,
+                    href: undefined,
                     async loader() {
-                      const services = await loadServices(
-                        `/pack/xdsl/${xdsl.serviceName}/xdslAccess/services`,
+                      return loadServices(
+                        `/xdsl/sdsl/xdsl/${sdsl.serviceName}/lines`,
                       );
-                      return services.map((service) => ({
-                        ...service,
-                        keywords: service.extraParams?.length
-                          ? service.extraParams[0]
-                          : '',
-                        icon: service.extraParams?.length && (
-                          <span className={style.telecomLabel}>
-                            {capitalize(service.extraParams[0])}
-                          </span>
-                        ),
-                      }));
                     },
-                  })),
-                  ...xdslStandalone.map((sdsl) => {
-                    return {
-                      ...sdsl,
-                      href: undefined,
-                      async loader() {
-                        return loadServices(
-                          `/xdsl/sdsl/xdsl/${sdsl.serviceName}/lines`,
-                        );
-                      },
-                    };
-                  }),
-                ];
-              },
-            }),
+                  };
+                }),
+              ];
+            },
+          }),
       });
     }
 
@@ -136,64 +133,64 @@ export default function TelecomSidebar() {
         routeMatcher: new RegExp(`^/telephony`),
         ...(isBeta
           ? {
-              href: navigation.getURL('telecom', '#/telephony'),
-            }
+            href: navigation.getURL('telecom', '#/telephony'),
+          }
           : {
-              async loader() {
-                const voips = await loadServices('/telephony');
-                return [
-                  {
-                    id: 'voip-repayments',
-                    href: navigation.getURL(
-                      'telecom',
-                      '#/telephony/repayments',
-                    ),
-                    icon: getIcon('oui-icon oui-icon-receipt_concept'),
-                    label: t('sidebar_telephony_repayments'),
-                    ignoreSearch: true,
-                  },
-                  ...voips.map((voip: SidebarMenuItem) => ({
-                    ...voip,
-                    routeMatcher: new RegExp(`^/telephony/${voip.serviceName}`),
-                    async loader() {
-                      const services = await loadServices(
-                        `/telephony/${voip.serviceName}/services`,
-                      );
-                      return services
-                        .sort((a, b) => {
-                          const aType = a.extraParams?.type.replace(
-                            'fax',
-                            'zfax',
-                          );
-                          const bType = b.extraParams?.type.replace(
-                            'fax',
-                            'zfax',
-                          );
-                          if (aType && bType) {
-                            if (aType === bType) {
-                              return a.label.localeCompare(b.label);
-                            }
-                            return aType.localeCompare(bType);
+            async loader() {
+              const voips = await loadServices('/telephony');
+              return [
+                {
+                  id: 'voip-repayments',
+                  href: navigation.getURL(
+                    'telecom',
+                    '#/telephony/repayments',
+                  ),
+                  icon: getIcon('oui-icon oui-icon-receipt_concept'),
+                  label: t('sidebar_telephony_repayments'),
+                  ignoreSearch: true,
+                },
+                ...voips.map((voip: SidebarMenuItem) => ({
+                  ...voip,
+                  routeMatcher: new RegExp(`^/telephony/${voip.serviceName}`),
+                  async loader() {
+                    const services = await loadServices(
+                      `/telephony/${voip.serviceName}/services`,
+                    );
+                    return services
+                      .sort((a, b) => {
+                        const aType = a.extraParams?.type.replace(
+                          'fax',
+                          'zfax',
+                        );
+                        const bType = b.extraParams?.type.replace(
+                          'fax',
+                          'zfax',
+                        );
+                        if (aType && bType) {
+                          if (aType === bType) {
+                            return a.label.localeCompare(b.label);
                           }
-                          return a.label.localeCompare(b.label);
-                        })
-                        .map((service) => ({
-                          ...service,
-                          keywords: service.extraParams?.type,
-                          icon: service.extraParams?.type && (
-                            <span className={style.telecomLabel}>
-                              {t([
-                                `sidebar_telephony_type_${service.extraParams?.type}`,
-                                service.extraParams?.type,
-                              ])}
-                            </span>
-                          ),
-                        }));
-                    },
-                  })),
-                ];
-              },
-            }),
+                          return aType.localeCompare(bType);
+                        }
+                        return a.label.localeCompare(b.label);
+                      })
+                      .map((service) => ({
+                        ...service,
+                        keywords: service.extraParams?.type,
+                        icon: service.extraParams?.type && (
+                          <span className={style.telecomLabel}>
+                            {t([
+                              `sidebar_telephony_type_${service.extraParams?.type}`,
+                              service.extraParams?.type,
+                            ])}
+                          </span>
+                        ),
+                      }));
+                  },
+                })),
+              ];
+            },
+          }),
       });
     }
 
@@ -205,13 +202,13 @@ export default function TelecomSidebar() {
         routeMatcher: new RegExp(`^/sms`),
         ...(isBeta
           ? {
-              href: navigation.getURL('telecom', '#/sms'),
-            }
+            href: navigation.getURL('telecom', '#/sms'),
+          }
           : {
-              async loader() {
-                return loadServices('/sms');
-              },
-            }),
+            async loader() {
+              return loadServices('/sms');
+            },
+          }),
       });
     }
 
@@ -223,18 +220,18 @@ export default function TelecomSidebar() {
         routeMatcher: new RegExp(`^/freefax`),
         ...(isBeta
           ? {
-              href: navigation.getURL('telecom', '#/freefax'),
-            }
+            href: navigation.getURL('telecom', '#/freefax'),
+          }
           : {
-              async loader() {
-                return loadServices('/freefax').then((services) =>
-                  services.map((freefax: SidebarMenuItem) => ({
-                    ...freefax,
-                    icon: <span className={style.telecomLabel}>Perso</span>,
-                  })),
-                );
-              },
-            }),
+            async loader() {
+              return loadServices('/freefax').then((services) =>
+                services.map((freefax: SidebarMenuItem) => ({
+                  ...freefax,
+                  icon: <span className={style.telecomLabel}>Perso</span>,
+                })),
+              );
+            },
+          }),
       });
     }
 
@@ -246,13 +243,13 @@ export default function TelecomSidebar() {
         routeMatcher: new RegExp(`^/overTheBox`),
         ...(isBeta
           ? {
-              href: navigation.getURL('telecom', '#/overTheBox'),
-            }
+            href: navigation.getURL('telecom', '#/overTheBox'),
+          }
           : {
-              async loader() {
-                return loadServices('/overTheBox');
-              },
-            }),
+            async loader() {
+              return loadServices('/overTheBox');
+            },
+          }),
       });
     }
 
@@ -268,9 +265,7 @@ export default function TelecomSidebar() {
   };
 
   const getFeatures = (): Promise<Record<string, string>> =>
-    reketInstance.get(`/feature/${features.join(',')}/availability`, {
-      requestType: 'aapi',
-    });
+    aapi.get(`/feature/${features.join(',')}/availability`).then(({ data }) => data);
 
   const { data: availability } = useQuery(
     ['sidebar-telecom-availability'],

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-import { useReket } from '@ovh-ux/ovh-reket';
+import { v6 } from '@ovh-ux/manager-core-api';
 import { Modal } from 'react-bootstrap';
 import { useTranslation, Trans } from 'react-i18next';
 
@@ -26,7 +26,6 @@ const SSOAuthModal = (): JSX.Element => {
     [mode],
   );
   const shell = useShell();
-  const reketInstance = useReket();
   const { t } = useTranslation('sso-auth-modal');
   const show = useMemo(() => !!mode, [mode]);
   const authPlugin = shell.getPlugin('auth');
@@ -44,18 +43,18 @@ const SSOAuthModal = (): JSX.Element => {
 
   useEffect(() => {
     if (mode === disconnectedToConnected || mode === connectedToOther) {
-      reketInstance
+      v6
         .get('/me', {
-          requestType: 'apiv6',
           params: {
             target: environment.getRegion(),
             lang: environment.getUserLocale(),
           },
         })
+        .then(({ data }) => data)
         .then((currentUser: User) => {
           setConnectedUser(currentUser);
         })
-        .catch(() => {});
+        .catch(() => { });
     }
   }, [mode]);
 
@@ -67,76 +66,75 @@ const SSOAuthModal = (): JSX.Element => {
           <div className="row">
             {(mode === connectedToDisconnected ||
               mode === connectedToOther) && (
-              <div
-                className={
-                  mode === connectedToDisconnected ? 'col-md-12' : 'col-md-6'
-                }
-              >
-                <p>{t('sso_modal_user_title')}</p>
                 <div
-                  className={`panel panel-default ${
-                    mode === connectedToOther ? 'panel-disabled' : ''
-                  }`}
+                  className={
+                    mode === connectedToDisconnected ? 'col-md-12' : 'col-md-6'
+                  }
                 >
-                  <div className="panel-body">
-                    <div className="sso-modal-account-badge-ctnr">
-                      <div
-                        className="sso-modal-account-badge"
-                        aria-hidden="true"
-                      >
-                        <span className="oui-icon oui-icon-user"></span>
+                  <p>{t('sso_modal_user_title')}</p>
+                  <div
+                    className={`panel panel-default ${mode === connectedToOther ? 'panel-disabled' : ''
+                      }`}
+                  >
+                    <div className="panel-body">
+                      <div className="sso-modal-account-badge-ctnr">
+                        <div
+                          className="sso-modal-account-badge"
+                          aria-hidden="true"
+                        >
+                          <span className="oui-icon oui-icon-user"></span>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="sso-modal-account-infos-ctnr">
-                      <div className="sso-modal-account-infos">
-                        <strong>{`${user.firstname} ${user.name}`}</strong>
-                        <br />
-                        <span>{user.email}</span>
-                        <br />
-                        <span>{user.nichandle}</span>
+                      <div className="sso-modal-account-infos-ctnr">
+                        <div className="sso-modal-account-infos">
+                          <strong>{`${user.firstname} ${user.name}`}</strong>
+                          <br />
+                          <span>{user.email}</span>
+                          <br />
+                          <span>{user.nichandle}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
             {(mode === disconnectedToConnected ||
               mode === connectedToOther) && (
-              <div
-                className={
-                  mode === disconnectedToConnected ? 'col-md-12' : 'col-md-6'
-                }
-              >
-                <p className={mode === connectedToOther ? 'bold' : ''}>
-                  {t('sso_modal_currentuser_title')}
-                </p>
-                <div className="panel panel-default">
-                  <div className="panel-body">
-                    <div className="sso-modal-account-badge-ctnr">
-                      <div
-                        className="sso-modal-account-badge"
-                        aria-hidden="true"
-                      >
-                        <span className="oui-icon oui-icon-user"></span>
+                <div
+                  className={
+                    mode === disconnectedToConnected ? 'col-md-12' : 'col-md-6'
+                  }
+                >
+                  <p className={mode === connectedToOther ? 'bold' : ''}>
+                    {t('sso_modal_currentuser_title')}
+                  </p>
+                  <div className="panel panel-default">
+                    <div className="panel-body">
+                      <div className="sso-modal-account-badge-ctnr">
+                        <div
+                          className="sso-modal-account-badge"
+                          aria-hidden="true"
+                        >
+                          <span className="oui-icon oui-icon-user"></span>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="sso-modal-account-infos-ctnr">
-                      <div className="sso-modal-account-infos">
-                        <strong>
-                          {`${connectedUser?.firstname} ${connectedUser?.name}`}
-                        </strong>
-                        <br />
-                        <span>{connectedUser?.email}</span>
-                        <br />
-                        <span>{connectedUser?.nichandle}</span>
+                      <div className="sso-modal-account-infos-ctnr">
+                        <div className="sso-modal-account-infos">
+                          <strong>
+                            {`${connectedUser?.firstname} ${connectedUser?.name}`}
+                          </strong>
+                          <br />
+                          <span>{connectedUser?.email}</span>
+                          <br />
+                          <span>{connectedUser?.nichandle}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
           {mode === connectedToDisconnected && (
             <strong>{t('sso_modal_disconnected')}</strong>
