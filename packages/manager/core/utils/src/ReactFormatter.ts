@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from 'react-dom';
+import ReactDOM from 'react-dom/client';
 
 export function ReactFormatter(jsxElement: any) {
   return function CustomFormatter(
@@ -11,13 +11,15 @@ export function ReactFormatter(jsxElement: any) {
     const renderFn = () => {
       const cellEl = cell.getElement();
       if (cellEl) {
-        const formatterCell = cellEl.querySelector('.formatterCell');
-        if (formatterCell) {
+        const root = ReactDOM.createRoot(
+          cellEl.querySelector('.formatterCell'),
+        );
+        if (root) {
           const CompWithMoreProps = React.cloneElement(jsxElement, {
             cellData,
             rowData,
           });
-          render(CompWithMoreProps, cellEl.querySelector('.formatterCell'));
+          root.render(CompWithMoreProps);
         }
       }
     };
