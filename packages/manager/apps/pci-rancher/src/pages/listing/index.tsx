@@ -15,6 +15,8 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import Datagrid from '@/components/layout-helpers/Listing/dataGrid';
 import { RancherService } from '@/api/api.type';
+import { TanstackDatagrid } from './TanstackDatagrid';
+
 
 export interface ListingProps {
   data: RancherService[];
@@ -26,6 +28,9 @@ const Listing: React.FC<ListingProps> = ({ data }) => {
   if (data.length === 0) {
     return <Navigate to="/onboarding" />;
   }
+
+  console.info('*************************');
+  console.info('entre dans listing page')
 
   return (
     <>
@@ -56,6 +61,7 @@ const Listing: React.FC<ListingProps> = ({ data }) => {
       </div>
 
       <Datagrid data={data} />
+      { data && data.length > 0 && (<TanstackDatagrid data={data} />) }
     </>
   );
 };

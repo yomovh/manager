@@ -144,10 +144,10 @@ export default function DatagridWrapper({ data }: DatagridWrapperInterface) {
           Rancher. Merci de réessayer.
         </OsdsMessage>
       )}
-      {columns && data && data.length > 0 && (
+      {columns && columns.length > 0 && data && data.length > 0 && (
         <OsdsDatagrid
           hasHideableColumns={undefined}
-          height={500}
+          height={300}
           columns={columns}
           rows={data as any}
           noResultLabel={t('emptyDataGridMessage')}

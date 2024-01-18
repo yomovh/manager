@@ -1,16 +1,15 @@
 import {
   apiClient,
-  fetchIceberg,
-  IcebergFetchResult,
+  fetchIcebergV2,
+  IcebergFetchResultV2,
 } from '@ovh-ux/manager-core-api';
 import { PciProject, RancherService } from '@/api/api.type';
 
 export const getRancherProjectById = async (
   projectId?: string,
-): Promise<IcebergFetchResult<RancherService>> =>
-  fetchIceberg<RancherService>({
+): Promise<IcebergFetchResultV2<RancherService>> =>
+  fetchIcebergV2<RancherService>({
     route: `/publicCloud/project/${projectId}/rancher`,
-    apiVersion: 'v2',
   });
 
 export const getProject = async (projectId: string): Promise<PciProject> => {
@@ -53,9 +52,8 @@ export const getpublicCloudReferenceRancherVersionListQueryKey = [
  */
 export const getListingIceberg = async () => {
   try {
-    const List = await fetchIceberg({
+    const List = await fetchIcebergV2({
       route: '/publicCloud/project',
-      apiVersion: 'v2',
     }).then(({ data, status }: any) => ({ data, status }));
     return List;
   } catch (error) {

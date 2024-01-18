@@ -31,6 +31,7 @@
     "@ovhcloud/ods-theme-blue-jeans": "^17.0.0",
     "@tanstack/react-query": "^5.8.3",
     "@tanstack/react-query-devtools": "^5.8.3",
+    "@tanstack/react-table": "^8.11.6",
     "@testing-library/react": "^14.1.2",
     "clsx": "^1.2.1",
     "i18next": "^20.4.0",

@@ -19,8 +19,8 @@ import { RancherService, RessourceStatus } from '@/api/api.type';
 
 const ActionsCell: React.FC<DataGridCellProps<undefined, RancherService> & {
   isLoading?: boolean;
-  openModal: () => void;
-  setSelectedRancher: (rancher: RancherService) => void;
+  openModal?: () => void;
+  setSelectedRancher?: (rancher: RancherService) => void;
 }> = ({ isLoading, rowData, openModal, setSelectedRancher }) => {
   const editable = true;
   const { t } = useTranslation('pci-rancher/listing');
@@ -32,7 +32,7 @@ const ActionsCell: React.FC<DataGridCellProps<undefined, RancherService> & {
   return (
     <div>
       <OsdsMenu
-        style={{ position: 'absolute', marginLeft: -10, marginTop: -15 }}
+        // style={{ position: 'absolute', marginLeft: -5, marginTop: -10 }}
       >
         <OsdsButton
           slot="menu-title"
@@ -51,20 +51,18 @@ const ActionsCell: React.FC<DataGridCellProps<undefined, RancherService> & {
             size={ODS_ICON_SIZE.xs}
           />
         </OsdsButton>
-        {rowData.resourceStatus !== RessourceStatus.ERROR && (
-          <OsdsMenuItem>
-            <OsdsButton
-              color={ODS_THEME_COLOR_INTENT.primary}
-              size={ODS_BUTTON_SIZE.sm}
-              variant={ODS_BUTTON_VARIANT.ghost}
-              text-align="start"
-            >
-              <span slot="start">
-                <span>{t('manage')}</span>
-              </span>
-            </OsdsButton>
-          </OsdsMenuItem>
-        )}
+        <OsdsMenuItem>
+          <OsdsButton
+            color={ODS_THEME_COLOR_INTENT.primary}
+            size={ODS_BUTTON_SIZE.sm}
+            variant={ODS_BUTTON_VARIANT.ghost}
+            text-align="start"
+          >
+            <span slot="start">
+              <span>{t('manage')}</span>
+            </span>
+          </OsdsButton>
+        </OsdsMenuItem>
         <OsdsMenuItem>
           <OsdsButton
             type={ODS_BUTTON_TYPE.button}

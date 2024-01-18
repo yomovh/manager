@@ -16,7 +16,7 @@ const lazyRouteConfig = (importFn: CallableFunction) => {
 
 export default [
   {
-    path: '/pci',
+    path: '/pci-rancher/pci',
     ...lazyRouteConfig(() => import('@/pages/Layout')),
     children: [
       {
