@@ -58,9 +58,9 @@ function HeaderTableTh({ header, table }: any) {
   );
 }
 
-function TanstackTable({ table, dato }: any) {
+function TanstackTable({ table, dato, fullWidth, }: any) {
   return (
-    <table className="tanstack-datagrid-div" cellSpacing={0}>
+    <table className={`tanstack-datagrid-div ${fullWidth ? 'w-full' : ''}`} cellSpacing={0}>
       <thead>
         {table &&
           table.getHeaderGroups().map((headerGroup: any) => (

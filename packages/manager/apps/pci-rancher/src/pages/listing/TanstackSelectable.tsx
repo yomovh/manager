@@ -20,17 +20,6 @@ function HeaderTableTh({ header, table }: any) {
         </th>
       );    
   }
-//   if (header.id === 'selectable') {
-//     return (
-//         <th>
-//             <OsdsCheckbox value="all-datagrid" name="all-datagrid">
-//                 <OsdsCheckboxButton color={ODS_THEME_COLOR_INTENT.text}>
-//                     toto
-//                 </OsdsCheckboxButton>
-//             </OsdsCheckbox>
-//         </th>
-//     );
-//   }
 
   return (
     <th key={header.iProductStatusCelld}>

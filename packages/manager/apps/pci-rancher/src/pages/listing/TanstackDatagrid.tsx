@@ -309,11 +309,6 @@ export function DisplayCell({ cell, dato }: any) {
   }
   const path = `${location.pathname}/${dato[cell.row.index]['id']}`;
 
-  console.info(
-    'cell.column.columnDef.accessorKey : ',
-    cell.column.columnDef.accessorKey,
-  );
-
   if (cell.column.columnDef.accessorKey === 'ordering') {
     return <div></div>;
   }

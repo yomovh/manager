@@ -2,6 +2,7 @@ import {
   apiClient,
   fetchIcebergV2,
   IcebergFetchResultV2,
+  fetchIcebergV6,
 } from '@ovh-ux/manager-core-api';
 import { PciProject, RancherService } from '@/api/api.type';
 
@@ -50,11 +51,29 @@ export const getpublicCloudReferenceRancherVersionListQueryKey = [
 /**
  *  Get listing with iceberg
  */
-export const getListingIceberg = async () => {
+export const getListingIamIceberg = async ({ pageSize, cursor, } : any) => {
   try {
     const List = await fetchIcebergV2({
-      route: '/publicCloud/project',
+      route: '/iam/resource',
     }).then(({ data, status }: any) => ({ data, status }));
+    return List;
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+
+/**
+ *  Get listing with iceberg
+ */
+export const getListingV6Iceberg = async ({page, pageSize}: any) => {
+  try {
+    const List = await fetchIcebergV6({
+      route: '/vps',
+      page,
+      pageSize,
+    }).then(
+      ({ data, status, totalCount }: any) => ({ data, status, totalCount }),
+    );
     return List;
   } catch (error) {
     return Promise.reject(error);
