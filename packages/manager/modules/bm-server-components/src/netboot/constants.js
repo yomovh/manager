@@ -28,10 +28,16 @@ export const NETBOOT_GUIDES = {
   DEFAULT: 'https://docs.ovh.com/us/en/dedicated/hardware-diagnostics',
 };
 
+export const UNSUPPORTED_SSH_KEY_RESCUES = ['WinRescue', 'WiRe'];
+export const SSH_KEY_PLACEHOLDER_EXAMPLE =
+  'ssh-rsa AAAAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX== my-public-key';
+
 export const getNetbootGuideUrl = (subsidiary) => {
   return NETBOOT_GUIDES[subsidiary] || NETBOOT_GUIDES.DEFAULT;
 };
 
 export default {
   getNetbootGuideUrl,
+  UNSUPPORTED_SSH_KEY_RESCUES,
+  SSH_KEY_PLACEHOLDER_EXAMPLE,
 };
