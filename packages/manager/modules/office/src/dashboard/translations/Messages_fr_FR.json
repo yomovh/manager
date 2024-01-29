@@ -100,7 +100,7 @@
   "microsoft_office_license_usage_period_last12": "Les 12 derniers mois",
   "microsoft_office_license_usage_error": "Une erreur est survenue lors de la récupération des données",
   "microsoft_office_license_empty_usage": "Aucune donnée de consommation n'est disponible",
-  "microsoft_office_license_group_name": "Groupe de licences",
+  "microsoft_office_license_group_name": "Test Groupe de licences",
   "microsoft_office_license_edit_save": "Enregistrer",
   "microsoft_office_license_edit_success": "Groupe de licences modifié avec succès",
   "microsoft_office_license_edit_error": "Erreur lors de la modification du groupe de licences",
