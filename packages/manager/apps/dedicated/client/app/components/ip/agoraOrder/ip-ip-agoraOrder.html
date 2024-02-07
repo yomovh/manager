@@ -36,6 +36,7 @@
                             id="service"
                             name="service"
                             class="oui-select__input"
+                            data-ng-change="$ctrl.getServiceRegion()"
                             data-ng-model="$ctrl.model.selectedService"
                             data-ng-options="service as service.displayName group by $ctrl.getServiceTypeLabel(service.type) for service in $ctrl.services | orderBy:'displayName' track by service.serviceName"
                         >
@@ -49,6 +50,12 @@
                             class="oui-icon oui-icon-chevron-down"
                             aria-hidden="true"
                         ></span>
+                        <div data-ng-if="$ctrl.model.selectedServiceRegion">
+                            <span data-translate="ip_region_label"></span
+                            ><span
+                                data-ng-bind="$ctrl.model.selectedServiceRegion"
+                            ></span>
+                        </div>
                     </label>
                 </oui-field>
             </div>
