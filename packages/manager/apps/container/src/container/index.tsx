@@ -1,5 +1,6 @@
 import React, { Suspense, useEffect } from 'react';
 
+// @ts-ignore
 import { Environment } from '@ovh-ux/manager-config';
 import LegacyContainer from '@/container/legacy';
 import NavReshuffleContainer from '@/container/nav-reshuffle';
