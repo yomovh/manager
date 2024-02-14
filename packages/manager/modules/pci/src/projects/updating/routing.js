@@ -1,9 +1,10 @@
 import component from './component';
 import { GUIDE_URLS } from './constants';
+import { PROJECT_PAGE_TRACKING_NAME } from '../project/project.constants';
 
 export default /* @ngInject */ ($stateProvider) => {
   $stateProvider.state('pci.projects.updating', {
-    url: '/updating/:orderId/:voucherCode',
+    url: '/updating/:orderId',
     views: {
       '@pci': component.name,
     },
@@ -16,95 +17,75 @@ export default /* @ngInject */ ($stateProvider) => {
 
       onProjectUpdated: /* @ngInject */ (
         atInternet,
-        $state,
-        voucherCode,
-        pciProjectService,
-        CucCloudMessage,
+        goToProject,
         $translate,
-      ) => (projectId) => {
+        projectId,
+      ) => (voucher) => {
         atInternet.trackPage({
           name: 'public-cloud::pci::projects::updated',
         });
-
-        const state = 'pci.projects.project';
-
-        const promise = $state.go(
-          state,
-          {
-            projectId,
-          },
-          { reload: true },
-        );
-
-        promise
-          .then(() => {
-            return pciProjectService
-              .getVouchersCreditDetails(projectId)
-              .then((vouchersCreditDetails) => {
-                // eslint-disable-next-line camelcase
-                return vouchersCreditDetails[0]?.available_credit?.text || '';
-              });
-          })
-          .then((voucherCredit) => {
-            atInternet.trackPage({
-              name:
-                'PublicCloud::pci::projects::project::activate-project-success',
-              projectId,
-              ...(voucherCode ? { voucherCode } : {}),
-            });
-            return voucherCredit
-              ? CucCloudMessage.success(
-                  {
-                    textHtml: $translate.instant(
-                      'pci_projects_project_activate_message_with_promotion_success',
-                      { amount: voucherCredit },
-                    ),
-                  },
-
-                  state,
+        return goToProject(projectId, {
+          reload: true,
+          message: {
+            type: 'success',
+            content: voucher
+              ? $translate.instant(
+                  'pci_projects_project_activate_message_with_promotion_success',
+                  { amount: voucher.available_credit.text },
                 )
-              : CucCloudMessage.success(
-                  {
-                    textHtml: $translate.instant(
-                      'pci_projects_project_activate_message_without_promotion_success',
-                    ),
-                  },
-                  state,
-                );
+              : $translate.instant(
+                  'pci_projects_project_activate_message_without_promotion_success',
+                ),
+          },
+        }).then(() => {
+          atInternet.trackPage({
+            name: `${PROJECT_PAGE_TRACKING_NAME}::activate-project-success`,
+            projectId,
+            ...(voucher && { voucherCode: voucher.voucher }),
           });
-
-        return promise;
+        });
       },
 
       onProjectUpdateFail: /* @ngInject */ (
-        $state,
+        goToError,
         $translate,
         atInternet,
-      ) => () => {
-        atInternet.trackPage({
-          name: 'PublicCloud::pci::projects::project::activate-project-error',
-        });
-        return $state.go(
-          'pci.error',
-          {
-            message: $translate.instant('pci_projects_updating_delivery_error'),
-          },
-          {
-            location: false,
-          },
-        );
-      },
+      ) => () =>
+        goToError(
+          $translate.instant('pci_projects_updating_delivery_error'),
+        ).then((result) => {
+          atInternet.trackPage({
+            name: `${PROJECT_PAGE_TRACKING_NAME}::activate-project-error`,
+          });
+          return result;
+        }),
+
+      onProjectUpdateRefused: /* @ngInject */ (
+        goToProject,
+        projectId,
+        atInternet,
+      ) => () =>
+        goToProject(projectId, { reload: true }).then((result) => {
+          atInternet.trackPage({
+            name: `${PROJECT_PAGE_TRACKING_NAME}::activate-project-error`,
+          });
+          return result;
+        }),
 
       orderId: /* @ngInject */ ($transition$) => $transition$.params().orderId,
 
-      order: /* @ngInject */ (orderId, pciProjectCreating) =>
-        pciProjectCreating.getOrderDetails(orderId, { extension: true }),
-
-      orderStatus: /* @ngInject */ (orderId, pciProjectCreating) =>
-        pciProjectCreating.getOrderStatus(orderId),
-
-      voucherCode: /* @ngInject */ ($transition$) =>
-        $transition$.params().voucherCode,
+      projectId: /* @ngInject */ ($http, orderId) =>
+        $http
+          .get(`/me/order/${orderId}/details`, {
+            headers: {
+              Pragma: 'no-cache',
+              'X-Pagination-Mode': 'CachedObjectList-Pages',
+            },
+          })
+          .then(
+            ({ data: orderDetails }) =>
+              orderDetails.map(({ domain }) => domain).filter(Boolean)[0],
+          ),
     },
   });
 };

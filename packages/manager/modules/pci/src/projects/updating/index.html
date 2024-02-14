@@ -22,10 +22,7 @@
                         >
                             <img
                                 class="img-responsive mx-auto"
-                                data-ng-repeat="image in $ctrl.imageSlider.list track by $index"
-                                data-ng-src="{{ image }}"
-                                data-ng-if="$index === $ctrl.imageSlider.currentIndex"
-                                alt
+                                data-ng-src="{{ $ctrl.image }}"
                             />
                         </div>
                         <div class="spinner mx-auto">

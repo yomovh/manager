@@ -106,8 +106,28 @@ export default /* @ngInject */ ($stateProvider) => {
         return $state.go(state, params, options);
       },
 
-      goToProject: /* @ngInject */ ($state) => (project) =>
-        $state.go('pci.projects.project', { projectId: project.project_id }),
+      goToProject: /* @ngInject */ ($state, CucCloudMessage) => (
+        project,
+        options,
+      ) => {
+        const { message, ...stateOptions } = options;
+        $state
+          .go(
+            'pci.projects.project',
+            { projectId: project.project_id || project },
+            stateOptions,
+          )
+          .then((result) => {
+            if (message) {
+              const { type, content: textHtml } = message;
+              CucCloudMessage[type]({ textHtml }, 'pci.projects.project');
+            }
+            return result;
+          });
+      },
+
+      goToError: /* @ngInject */ ($state) => (message) =>
+        $state.go('pci.error', { message }, { location: false }),
 
       goToNewProject: /* @ngInject */ ($state) => () =>
         $state.go('pci.projects.new'),

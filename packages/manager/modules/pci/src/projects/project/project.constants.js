@@ -75,7 +75,7 @@ export const ACTIONS = [
   },
 ];
 
-const PROJECT_PAGE_TRACKING_NAME = 'PublicCloud::pci::projects::project';
+export const PROJECT_PAGE_TRACKING_NAME = 'PublicCloud::pci::projects::project';
 
 export const DOCUMENTATION_LINKS = [
   {
@@ -257,6 +257,17 @@ export const DISCOVERY_PROJECT_ACTIVATION_PAYLOAD = {
 
 export const FULL_PROJECT_PLANCODE = 'project.2018';
 
+export const PROJECT_ORDER_STATUS = {
+  hasError: false,
+  isActivated: false,
+  isActivating: false,
+  isManuallyReviewedByAntiFraud: false,
+  isNotActivated: false,
+  isRefusedByAntiFraud: false,
+  orderId: null,
+  voucher: null,
+};
+
 export default {
   PRODUCT_IMAGES,
   ACTIONS,
@@ -274,4 +285,6 @@ export default {
   DISCOVERY_PROMOTION_VOUCHER,
   DISCOVERY_PROJECT_ACTIVATION_PAYLOAD,
   FULL_PROJECT_PLANCODE,
+  PROJECT_ORDER_STATUS,
+  PROJECT_PAGE_TRACKING_NAME,
 };

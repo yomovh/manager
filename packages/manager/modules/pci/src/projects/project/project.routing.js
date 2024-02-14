@@ -41,11 +41,11 @@ export default /* @ngInject */ ($stateProvider) => {
           orderStatus: orderStatusPromise,
         })
         .then(({ project, orderStatus }) => {
-          const { orderId, isActivating, voucher: voucherCode } = orderStatus;
+          const { orderId, isActivating } = orderStatus;
           if (isActivating) {
             return {
               state: 'pci.projects.updating',
-              params: { orderId, voucherCode },
+              params: { orderId },
             };
           }
           if (project.status === 'creating') {

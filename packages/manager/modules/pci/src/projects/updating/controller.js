@@ -1,173 +1,51 @@
-import { SLIDE_ANIMATION_INTERVAL, SLIDE_IMAGES } from './constants';
-import {
-  ORDER_FOLLOW_UP_POLLING_INTERVAL,
-  ORDER_FOLLOW_UP_STATUS_ENUM,
-  ORDER_FOLLOW_UP_STEP_ENUM,
-  ORDER_FOLLOW_UP_HISTORY_STATUS_ENUM,
-} from '../projects.constant';
-import {
-  PCI_HDS_ADDON,
-  PCI_HDS_DISCOVERY_ADDON,
-} from '../project/project.constants';
+import { SLIDE_ANIMATION_INTERVAL, IMAGES } from './constants';
+import { ORDER_FOLLOW_UP_POLLING_INTERVAL } from '../projects.constant';
 
 export default class PciProjectUpdatingCtrl {
   /* @ngInject */
-  constructor($q, $timeout, $state, pciProjectCreating, PciProjectsService) {
-    // dependencies injections
-    this.$q = $q;
-    this.$timeout = $timeout;
-    this.$state = $state;
-    this.pciProjectCreating = pciProjectCreating;
-    this.PciProjectsService = PciProjectsService;
+  constructor($interval, ProjectService) {
+    this.$interval = $interval;
+    this.ProjectService = ProjectService;
 
-    // other attributes
-    this.pollingNamespace = 'pci.projects.order';
-    this.orderFollowUpPolling = null;
-
-    this.imageSlider = {
-      currentIndex: 0,
-      list: SLIDE_IMAGES,
-    };
+    this.slideIntervalId = null;
+    this.pollIntervalId = null;
+    this.image = null;
   }
-
-  getUpdatedProjectId() {
-    return this.pciProjectCreating
-      .getOrderDetails(this.orderId)
-      .then((details) => {
-        const orderItemsDetailPromises = details.map(({ orderDetailId }) =>
-          this.pciProjectCreating
-            .getOrderItemDetails(this.orderId, orderDetailId)
-            .then((data) => {
-              return { orderDetailId, item: data };
-            }),
-        );
-
-        return this.$q
-          .all(orderItemsDetailPromises)
-          .then((orderItemsDetails) => {
-            return { details, orderItemsDetails };
-          });
-      })
-      .then(({ details, orderItemsDetails }) => {
-        const itemDetails = orderItemsDetails.find(
-          ({ item }) =>
-            item.order.plan.code === PCI_HDS_ADDON.parentPlanCode ||
-            item.order.plan.code === PCI_HDS_DISCOVERY_ADDON.parentPlanCode,
-        );
-        const detail = details.find(
-          ({ orderDetailId }) => itemDetails.orderDetailId === orderDetailId,
-        );
-
-        return detail.domain;
-      });
-  }
-
-  static isManuallyReviewedByAntiFraud(followUp) {
-    const validatingOrderStep = followUp.find(
-      (item) =>
-        item.step.toLowerCase() ===
-        ORDER_FOLLOW_UP_STEP_ENUM.VALIDATING.toLowerCase(),
-    );
-
-    if (validatingOrderStep) {
-      return (
-        validatingOrderStep?.history.find(
-          (event) =>
-            event.label ===
-            ORDER_FOLLOW_UP_HISTORY_STATUS_ENUM.FRAUD_MANUAL_REVIEW,
-        ) || false
-      );
-    }
-    return false;
-  }
-
-  /* ==============================
-  =            Polling            =
-  =============================== */
-
-  startOrderFollowUpPolling(interval = ORDER_FOLLOW_UP_POLLING_INTERVAL) {
-    this.orderFollowUpPolling = this.$timeout(() => {
-      this.PciProjectsService.getOrderFollowUp(this.orderId)
-        .then((followUp) => {
-          if (this.constructor.isManuallyReviewedByAntiFraud(followUp)) {
-            return this.getUpdatedProjectId().then((projectId) =>
-              this.$state.go(
-                'pci.projects.project',
-                { projectId },
-                { reload: true },
-              ),
-            );
-          }
-
-          const { status } =
-            followUp.find(
-              (item) => item.step === ORDER_FOLLOW_UP_STEP_ENUM.DELIVERING,
-            ) || {};
-
-          if (status === ORDER_FOLLOW_UP_STATUS_ENUM.DONE) {
-            return this.getUpdatedProjectId().then((projectId) =>
-              this.onProjectUpdated(projectId),
-            );
-          }
-
-          const hasStepInError = followUp.some(
-            (item) => item.status === ORDER_FOLLOW_UP_STATUS_ENUM.ERROR,
-          );
-
-          if (hasStepInError) {
-            this.onProjectUpdateFail();
-          }
-
-          return followUp;
-        })
-        .finally(() => {
-          if (this.orderFollowUpPolling) {
-            this.startOrderFollowUpPolling();
-          }
-        });
-    }, interval);
-
-    return this.orderFollowUpPolling;
-  }
-
-  stopOrderFollowUpPolling() {
-    if (this.orderFollowUpPolling) {
-      this.$timeout.cancel(this.orderFollowUpPolling);
-      this.orderFollowUpPolling = null;
-    }
-  }
-
-  /* -----  End of Polling  ------ */
-
-  /* ===================================
-  =            Image slider            =
-  ==================================== */
-
-  slideImages() {
-    return this.$timeout(() => {
-      if (this.imageSlider.currentIndex >= this.imageSlider.list.length - 1) {
-        this.imageSlider.currentIndex = 0;
-      } else {
-        this.imageSlider.currentIndex += 1;
-      }
-      return this.slideImages();
-    }, SLIDE_ANIMATION_INTERVAL);
-  }
-
-  /* -----  End of Image slider  ------ */
-
-  /* ============================
-  =            Hooks            =
-  ============================= */
 
   $onInit() {
-    this.slideImages();
-    this.startOrderFollowUpPolling(0);
+    this.pollIntervalId = this.pollOrder();
+    this.slideIntervalId = this.slideImages();
   }
 
   $onDestroy() {
-    this.stopOrderFollowUpPolling();
+    this.$interval.cancel(this.pollIntervalId);
+    this.$interval.cancel(this.slideIntervalId);
   }
 
-  /* -----  End of Hooks  ------ */
+  pollOrder() {
+    return this.$interval(() => {
+      this.ProjectService.getProjectOrderStatus(this.projectId).then(
+        ({ hasError, isNotActivated, isActivated, voucher }) => {
+          const action = (() => {
+            if (hasError) return () => this.onProjectUpdateFail();
+            if (isNotActivated) return () => this.onProjectUpdateRefused();
+            if (isActivated) return () => this.onProjectUpdated(voucher);
+            return null;
+          })();
+          if (action) {
+            this.$onDestroy();
+            action();
+          }
+        },
+      );
+    }, ORDER_FOLLOW_UP_POLLING_INTERVAL);
+  }
+
+  slideImages() {
+    let images;
+    return this.$interval(() => {
+      if (!images.length) images = [...IMAGES];
+      this.image = images.shift();
+    }, SLIDE_ANIMATION_INTERVAL);
+  }
 }

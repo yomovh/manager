@@ -2,13 +2,15 @@ import {
   URL_INFO,
   DISCOVERY_PROJECT_ACTIVATION_PAYLOAD,
   FULL_PROJECT_PLANCODE,
+  PROJECT_ORDER_STATUS,
 } from './project.constants';
 import {
   ORDER_FOLLOW_UP_STEP_ENUM,
   ORDER_FOLLOW_UP_HISTORY_STATUS_ENUM,
+  ORDER_FOLLOW_UP_STATUS_ENUM,
 } from '../projects.constant';
 
-export default class {
+export default class ProjectService {
   /* @ngInject */
   constructor($http, $q, iceberg, coreConfig) {
     this.project = {};
@@ -22,8 +24,44 @@ export default class {
     return this.project;
   }
 
+  getProjectOrder(projectId) {
+    return this.$http
+      .get(`/cloud/order/?planCode=${FULL_PROJECT_PLANCODE}`)
+      .then(({ data: orders }) =>
+        orders
+          .sort(({ date: dateA }, { date: dateB }) => (dateB > dateA ? 1 : -1))
+          .find(({ serviceName }) => serviceName === projectId),
+      )
+      .catch(() => null);
+  }
+
   getProjectOrderStatus(projectId) {
-    const { VALIDATING } = ORDER_FOLLOW_UP_STEP_ENUM;
+    return this.getProjectOrder(projectId)
+      .then(({ orderId }) =>
+        this.$q
+          .all([
+            this.getVouchersCreditDetails(projectId),
+            this.getOrderFollowUp(orderId),
+          ])
+          .then(([[voucher], followUp]) => ({
+            ...PROJECT_ORDER_STATUS,
+            orderId,
+            ...(voucher && { voucher }),
+            ...ProjectService.extractOrderStatusFromFollowUp(followUp),
+          })),
+      )
+      .catch(() => ({ ...PROJECT_ORDER_STATUS }));
+  }
+
+  getOrderFollowUp(orderId) {
+    return this.$http
+      .get(`/me/order/${orderId}/followUp`)
+      .then(({ data }) => data);
+  }
+
+  static extractOrderStatusFromFollowUp(followUp) {
+    const { VALIDATING, DELIVERING } = ORDER_FOLLOW_UP_STEP_ENUM;
+    const { DONE, ERROR } = ORDER_FOLLOW_UP_STATUS_ENUM;
     const {
       FRAUD_MANUAL_REVIEW,
       FRAUD_REFUSED,
@@ -31,68 +69,28 @@ export default class {
       PAYMENT_RECEIVED,
     } = ORDER_FOLLOW_UP_HISTORY_STATUS_ENUM;
 
-    const status = {
-      orderId: null,
-      isActivating: false,
-      isManuallyReviewedByAntiFraud: false,
-      isRefusedByAntiFraud: false,
-      voucher: '',
-    };
+    const result = {};
+    const labels =
+      followUp
+        .find(({ step }) => step === VALIDATING)
+        ?.history.map(({ label }) => label) || [];
 
-    return this.$http
-      .get(`/cloud/order/?planCode=${FULL_PROJECT_PLANCODE}`)
-      .then(({ data: orders }) => {
-        const order = orders
-          .sort(({ date: dateA }, { date: dateB }) => (dateB > dateA ? 1 : -1))
-          .find(({ serviceName }) => serviceName === projectId);
+    result.hasError = followUp.some(({ status }) => status === ERROR);
+    result.isRefusedByAntiFraud = labels.includes(FRAUD_REFUSED);
+    result.isManuallyReviewedByAntiFraud =
+      !result.isRefusedByAntiFraud && labels.includes(FRAUD_MANUAL_REVIEW);
+    result.isNotActivated =
+      result.hasError ||
+      result.isRefusedByAntiFraud ||
+      result.isManuallyReviewedByAntiFraud;
+    result.isActivating =
+      !result.isNotActivated &&
+      [PAYMENT_INITIATED, PAYMENT_RECEIVED].some((lb) => labels.includes(lb));
+    result.isActivated = followUp.some(
+      ({ step, status }) => step === DELIVERING && status === DONE,
+    );
 
-        if (order) {
-          status.orderId = order.orderId;
-
-          return this.$q
-            .all({
-              vouchers: this.getVouchersCreditDetails(projectId),
-              followUp: this.getOrderFollowUp(order.orderId),
-            })
-            .then(({ followUp, vouchers: [firstVoucher] }) => {
-              const validatingStepHistory = followUp.find(
-                ({ step }) => step === VALIDATING,
-              )?.history;
-
-              status.voucher = firstVoucher?.voucher || '';
-
-              if (validatingStepHistory) {
-                validatingStepHistory.forEach(({ label }) => {
-                  if (label === PAYMENT_INITIATED || label === PAYMENT_RECEIVED)
-                    status.isActivating = true;
-                  if (label === FRAUD_MANUAL_REVIEW)
-                    status.isManuallyReviewedByAntiFraud = true;
-                  if (label === FRAUD_REFUSED)
-                    status.isRefusedByAntiFraud = true;
-                });
-
-                if (
-                  status.isManuallyReviewedByAntiFraud ||
-                  status.isRefusedByAntiFraud
-                ) {
-                  status.isActivating = false;
-                }
-              }
-
-              return status;
-            })
-            .catch(() => status);
-        }
-
-        return status;
-      })
-      .catch(() => status);
-  }
-
-  getOrderFollowUp(orderId) {
-    return this.$http
-      .get(`/me/order/${orderId}/followUp`)
-      .then(({ data }) => data);
+    return result;
   }
 
   getDocumentUrl(type) {

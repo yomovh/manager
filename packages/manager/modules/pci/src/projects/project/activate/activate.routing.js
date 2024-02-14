@@ -101,15 +101,8 @@ export default /* @ngInject */ ($stateProvider) => {
         );
       },
 
-      goToLoadingUpgradePage: /* @ngInject */ ($state) => (
-        orderId,
-        voucherCode,
-      ) => {
-        return $state.go('pci.projects.updating', {
-          orderId,
-          voucherCode,
-        });
-      },
+      goToLoadingUpgradePage: /* @ngInject */ ($state) => (orderId) =>
+        $state.go('pci.projects.updating', { orderId }),
 
       claimDiscoveryVoucher: /* @ngInject */ (projectService, projectId) => (
         data,

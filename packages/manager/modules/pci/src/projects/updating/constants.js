@@ -29,7 +29,7 @@ export const GUIDE_URLS = {
 
 export const SLIDE_ANIMATION_INTERVAL = 5000;
 
-export const SLIDE_IMAGES = [
+export const IMAGES = [
   dataAdp,
   orchestrationKs8,
   orchestrationPrivateImageCatalogue,
@@ -43,5 +43,5 @@ export const SLIDE_IMAGES = [
 export default {
   GUIDE_URLS,
   SLIDE_ANIMATION_INTERVAL,
-  SLIDE_IMAGES,
+  IMAGES,
 };
