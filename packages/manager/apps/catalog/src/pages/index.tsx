@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 import { OsdsText } from '@ovhcloud/ods-components/text/react/';
 import { OsdsDivider } from '@ovhcloud/ods-components/divider/react/';
@@ -21,12 +21,11 @@ import Errors from '@/components/Error/Errors';
 
 export default function Catalog() {
   const { t } = useTranslation('catalog');
-  const navigate = useNavigate();
-
+  const [, setSearchParams] = useSearchParams();
   const [searchText, setSearchText] = React.useState('');
   const [categories, setCategories] = React.useState<string[]>([]);
   const [universes, setUniverses] = React.useState<string[]>([]);
-
+  const [routerInitiated, setRouterInitiated] = React.useState<boolean>(false);
   const { results, products, isLoading, error } = useCatalog({
     categories,
     universes,
@@ -35,12 +34,16 @@ export default function Catalog() {
 
   useEffect(() => {
     if (products.length > 0) {
-      const searchParams = getSearchUrlFromFilterParams(
+      const customSearchParams = getSearchUrlFromFilterParams(
         searchText,
         categories,
         universes,
       );
-      navigate({ search: searchParams });
+      if (routerInitiated) {
+        setSearchParams(customSearchParams);
+      } else if (customSearchParams.size !== 0) {
+        setRouterInitiated(true);
+      }
     }
   }, [searchText, categories, universes, products]);
 

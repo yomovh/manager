@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { OsdsButton } from '@ovhcloud/ods-components/button/react';
 import { OsdsText } from '@ovhcloud/ods-components/text/react';
 import { OsdsLink } from '@ovhcloud/ods-components/link/react';
-import { useLocation } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { ODS_TEXT_LEVEL, ODS_TEXT_SIZE } from '@ovhcloud/ods-components/text';
 import { ODS_THEME_COLOR_INTENT } from '@ovhcloud/ods-common-theming';
 
@@ -39,8 +39,7 @@ const Filters: React.FC<FiltersProps> = ({
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedUniverses, setSelectedUniverses] = useState<string[]>([]);
   const [hasInteracted, setHasInteracted] = useState<boolean>(false);
-
-  const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   const setFilters = () => {
     setParentSelectedCategories(selectedCategories);
@@ -50,7 +49,7 @@ const Filters: React.FC<FiltersProps> = ({
 
   useEffect(() => {
     if (products.length > 0) {
-      const { universes, categories } = getFilterParamsFromUrl(location.search);
+      const { universes, categories } = getFilterParamsFromUrl(searchParams);
 
       if (categories.length !== selectedCategories.length) {
         setSelectedCategories(categories);
@@ -61,7 +60,7 @@ const Filters: React.FC<FiltersProps> = ({
         setParentSelectedUniverses(universes);
       }
     }
-  }, [location.search, products]);
+  }, [searchParams, products]);
 
   // we get the list of available categories and universes from product list
   const universes = getUniverses(products, true);
