@@ -1,32 +1,31 @@
 Feature: Subnet page
 
-  Scenario Outline: User wants to see the subnets of a vRack Services
-    Given User has a vRack Services that "<hasSubnet>" a subnet
+  # Scenario Outline: User wants to see the subnets of a vRack Services
+  #   Given User has a vRack Services that "<hasSubnet>" a subnet
+  #   When User navigates to the vRack Services Subnet page
+  #   Then User sees the subnet <page> page
+
+  #   Examples:
+  #     | hasSubnet    | page       |
+  #     | has          | Listing    |
+  #     | doesn't have | Onboarding |
+
+  Scenario Outline: User can create a subnet
+    Given User has a vRack Services that "<hasSubnet>" a subnet and a status <resourceStatus>
+    Given User selects his vRack Services in the Listing page
     When User navigates to the vRack Services Subnet page
-    Then User sees the subnet <page> page
+    Then User sees the create a subnet button <buttonState>
 
     Examples:
-      | hasSubnet    | page       |
-      | has          | Listing    |
-      | doesn't have | Onboarding |
-
-# Scenario Outline: User can create a subnet
-#   Given User has a vRack Services that "<hasSubnet>" a subnet
-#   Given User has a vRack Services that is <resourceStatus>
-#   Given User selects his vRack Services in the Listing page
-#   When User navigates to the vRack Services Subnet page
-#   Then User sees the create a subnet button <buttonState>
-
-#   Examples:
-#     | hasSubnet    | resourceStatus | buttonState |
-#     | has          | UPDATING       | disabled    |
-#     | has          | DELETING       | disabled    |
-#     | has          | ERROR          | disabled    |
-#     | has          | READY          | disabled    |
-#     | doesn't have | UPDATING       | disabled    |
-#     | doesn't have | DELETING       | disabled    |
-#     | doesn't have | ERROR          | disabled    |
-#     | doesn't have | READY          | enabled     |
+      | hasSubnet    | resourceStatus | buttonState |
+      | has          | UPDATING       | disabled    |
+      | has          | DELETING       | disabled    |
+      | has          | ERROR          | disabled    |
+      | has          | READY          | disabled    |
+      | doesn't have | UPDATING       | disabled    |
+      | doesn't have | DELETING       | disabled    |
+      | doesn't have | ERROR          | disabled    |
+      | doesn't have | READY          | enabled     |
 
 # Scenario Outline: User wants to creates a new subnet for his vRack Services
 #   Given User wants to create a subnet with name <name> and CIDR <cidr> and service range <serviceRange> and vlan <vlan>
