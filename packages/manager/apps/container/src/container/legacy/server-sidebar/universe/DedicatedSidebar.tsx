@@ -53,7 +53,7 @@ export default function DedicatedSidebar() {
   const [shopItems, setShopItems] = useState<ShopItem[]>([]);
   const shell = useShell();
   const reketInstance = useReket();
-  const { loadServices } = useServiceLoader('dedicated');
+  const { loadServices, loadServicesV2 } = useServiceLoader('dedicated');
   const { t, i18n } = useTranslation('sidebar');
   const navigation = shell.getPlugin('navigation');
   const environment = shell.getPlugin('environment').getEnvironment();
@@ -293,27 +293,24 @@ export default function DedicatedSidebar() {
           feature['vrack-services'] && {
             id: 'dedicated-vrackservices',
             label: t('sidebar_vrack_services'),
-            icon: getIcon('oui-icon oui-icon-vRack-services_concept'),// TODO Add new icon
-            href: navigation.getURL('vrack-services', '#/'),
+            icon: getIcon('oui-icon oui-icon-vRack-services_concept'),
             routeMatcher: new RegExp('^/vrack-services'),
-            // async loader() {
-            //   const services = await loadServices('/vrackServices/resource');//TODO Needs to relook with apiv2 api
-            //   return [
-            //     {
-            //       id: 'vrack_services-all',
-            //       label: t('sidebar_service_all'),
-            //       href: navigation.getURL('dedicated', '#/vrack-services'),
-            //       ignoreSearch: true,
-            //     },
-            //     ...services.map((service) => ({
-            //       ...service,
-            //       href: navigation.getURL(
-            //         'dedicated',
-            //         `#/vrack-services/${service.currentState.vrackId}`,
-            //       ),
-            //     })),
-            //   ];
-            // },
+            async loader() {
+              const items = await loadServicesV2({
+                applicationId: 'vrack-services',
+                path: '/vrackServices/resource'
+              });
+
+              return [
+                {
+                  id: 'vrack_services-all',
+                  label: t('sidebar_all_vrack_services'),
+                  href: navigation.getURL('vrack-services', '#/'),
+                  ignoreSearch: true,
+                },
+                ...items
+              ];
+            },
           },
           feature['cloud-connect'] && {
             id: 'dedicated-ovhcloudconnect',

@@ -1,6 +1,7 @@
 import { useReket } from '@ovh-ux/ovh-reket';
 import { useShell } from '@/context';
 import { SidebarMenuItem } from '../sidebarMenu';
+import apiClient from '@ovh-ux/manager-core-api';
 
 export default function useServiceLoader(appId: string) {
   const reketInstance = useReket();
@@ -35,5 +36,20 @@ export default function useServiceLoader(appId: string) {
           return a.label?.localeCompare(b.label);
         });
     },
+    async loadServicesV2({applicationId, path}: {
+      applicationId: string;
+      path: string;
+    }): Promise<SidebarMenuItem[]> {
+      const response = await apiClient.v2.get(path);
+      return response.data.map((service: any) => ({
+        id: `service-${service.id}`,
+        label: service.currentState.displayName || service.id,
+        href: navigation.getURL(applicationId || appId, `#/${service.id}`),
+        serviceName: service.currentState.displayName || service.id,
+      }))
+      .sort((a: SidebarMenuItem, b: SidebarMenuItem) => {
+        return a.label?.localeCompare(b.label);
+      });
+    }
   };
 }
