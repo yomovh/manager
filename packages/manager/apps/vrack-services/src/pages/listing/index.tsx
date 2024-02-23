@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useLoaderData } from 'react-router-dom';
 import { ODS_THEME_COLOR_INTENT } from '@ovhcloud/ods-common-theming';
 import { useTranslation } from 'react-i18next';
 import {
@@ -33,6 +33,8 @@ import { betaVrackServicesLimit } from './constants';
 import { urls } from '@/router/constants';
 
 const ListingPage: React.FC = () => {
+  const dato = useLoaderData();
+  console.info('data: ', dato);
   const { t } = useTranslation('vrack-services/listing');
   const navigate = useNavigate();
   const [reachedBetaLimit, setReachedBetaLimit] = React.useState(false);

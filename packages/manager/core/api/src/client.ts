@@ -1,8 +1,14 @@
-import axios, { AxiosResponse, AxiosError } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosHeaders,
+  AxiosResponse,
+} from 'axios';
 import {
   redirectToLoginPage,
   redirectToLogoutPage,
 } from '@ovh-ux/manager-core-sso';
+import { getHeaders } from '@ovh-ux/request-tagger';
 
 const defaultAxiosConfig = {};
 
@@ -42,27 +48,38 @@ export const v6 = axios.create({
   ...defaultAxiosConfig,
   baseURL: '/engine/apiv6',
 });
-v6.interceptors.response.use(null, handleAuthenticationError);
 
 export const aapi = axios.create({
   ...defaultAxiosConfig,
   baseURL: '/engine/2api',
 });
-aapi.interceptors.response.use(null, handleAuthenticationError);
 
 export const ws = axios.create({
   ...defaultAxiosConfig,
   baseURL: '/engine/ws',
 });
-ws.interceptors.response.use(null, handleAuthenticationError);
 
 export const v2 = axios.create({
   ...defaultAxiosConfig,
   baseURL: '/engine/api/v2',
 });
-v2.interceptors.response.use(null, handleAuthenticationError);
 
 export const apiClient = { v6, aapi, ws, v2 };
+
+Object.keys(apiClient).forEach((api) => {
+  (apiClient[api] as AxiosInstance).interceptors.request.use((config) => {
+    return {
+      ...config,
+      headers: {
+        ...config.headers,
+        ...getHeaders(config.baseURL),
+      } as AxiosHeaders,
+    };
+  });
+  apiClient[api]?.interceptors?.response.use(null, handleAuthenticationError);
+  return api;
+});
+
 export default apiClient;
 
 export type ApiError = AxiosError<{ message: string }>;
