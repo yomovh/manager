@@ -8,7 +8,8 @@ import {
 
 export default class TrafficController {
   /* @ngInject */
-  constructor($translate, Alerter, networkSecurityService) {
+  constructor($stateParams, $translate, Alerter, networkSecurityService) {
+    this.$stateParams = $stateParams;
     this.$translate = $translate;
     this.Alerter = Alerter;
     this.networkSecurityService = networkSecurityService;
@@ -34,11 +35,23 @@ export default class TrafficController {
       this.services = data;
       return data;
     });
-    if (this.getSubnet()) {
-      this.subnet = this.getSubnet();
-      this.selectedIp = this.subnet;
-      this.model = this.selectedIp;
-      this.getTraffic();
+    this.ip = this.$stateParams.ip;
+    this.dateTime = this.$stateParams.dateTime
+      ? new Date(this.$stateParams.dateTime)
+      : null;
+    if (this.dateTime) {
+      const customPeriod = {
+        name: 'custom',
+        label: this.$translate.instant(
+          'network_security_dashboard_filter_custom',
+        ),
+      };
+      this.periods.push(customPeriod);
+      this.period = this.periods[this.periods.length - 1];
+    }
+    if (this.ip) {
+      this.selectedIp = this.ip;
+      this.checkSelectedSubnet(this.ip);
     }
 
     this.units = this.CHART.units;
@@ -78,7 +91,6 @@ export default class TrafficController {
 
   checkSelectedSubnet(value) {
     let isSubnetValid = true;
-    console.log('value', value);
 
     if (!value || (value.indexOf('/') === -1 && !ipaddr.isValid(value))) {
       isSubnetValid = false;
@@ -126,6 +138,9 @@ export default class TrafficController {
         break;
       case this.TRAFFIC_PERIOD_LIST.last2weeks:
         after.setDate(after.getDate() - 14);
+        break;
+      case 'custom':
+        after.setTime(this.dateTime);
         break;
       default:
         after.setDate(after.getDate() - 1);
