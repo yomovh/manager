@@ -6,12 +6,15 @@ import {
   OsdsMessage,
   OsdsSpinner,
   OsdsModal,
+  OsdsText,
 } from '@ovhcloud/ods-components/react';
 import {
   ODS_BUTTON_TYPE,
   ODS_BUTTON_VARIANT,
   ODS_MESSAGE_TYPE,
   ODS_SPINNER_SIZE,
+  ODS_TEXT_LEVEL,
+  ODS_TEXT_SIZE,
 } from '@ovhcloud/ods-components';
 import { useAllowedVrackList } from '@/api';
 import { AssociateVrack } from './AssociateVrack';
@@ -19,23 +22,22 @@ import { CreateVrack } from './CreateVrack';
 import { handleClick } from '@/utils/ods-utils';
 
 export type VrackAssociationModalProps = {
+  dataTrackingPath?: string;
   vrackServicesId?: string;
-  disabled?: boolean;
   closeModal: () => void;
 };
 
 export const VrackAssociationModal: React.FC<VrackAssociationModalProps> = ({
+  dataTrackingPath,
   vrackServicesId,
   closeModal,
 }) => {
   const { t } = useTranslation('vrack-services/listing');
-  const modal = React.useRef<HTMLOsdsModalElement>(null);
   const { allowedVrackList, isError, isLoading, error } = useAllowedVrackList(
     vrackServicesId,
   );
   const close = () => {
     closeModal();
-    modal.current.close();
   };
 
   if (!vrackServicesId) {
@@ -44,7 +46,6 @@ export const VrackAssociationModal: React.FC<VrackAssociationModalProps> = ({
 
   return (
     <OsdsModal
-      ref={modal}
       dismissible
       headline={t('modalVrackAssociationTitle')}
       masked={!vrackServicesId || undefined}
@@ -52,10 +53,13 @@ export const VrackAssociationModal: React.FC<VrackAssociationModalProps> = ({
     >
       {isError && (
         <OsdsMessage type={ODS_MESSAGE_TYPE.error}>
-          {t('genericApiError', {
-            error: error?.response?.data.message,
-            interpolation: { escapeValue: false },
-          })}
+          <OsdsText
+            level={ODS_TEXT_LEVEL.body}
+            size={ODS_TEXT_SIZE._400}
+            color={ODS_THEME_COLOR_INTENT.text}
+          >
+            {t('genericApiError', { error: error?.response?.data.message })}
+          </OsdsText>
         </OsdsMessage>
       )}
       {isLoading && <OsdsSpinner inline size={ODS_SPINNER_SIZE.md} />}
@@ -67,7 +71,7 @@ export const VrackAssociationModal: React.FC<VrackAssociationModalProps> = ({
         />
       )}
       {!isLoading && !isError && allowedVrackList.length === 0 && (
-        <CreateVrack closeModal={close} />
+        <CreateVrack dataTrackingPath={dataTrackingPath} closeModal={close} />
       )}
       {(isLoading || isError) && (
         <OsdsButton

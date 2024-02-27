@@ -1,9 +1,23 @@
 /* eslint-disable import/prefer-default-export */
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { OsdsDatagrid, OsdsMessage } from '@ovhcloud/ods-components/react';
-import { ODS_MESSAGE_TYPE, OdsDatagridColumn } from '@ovhcloud/ods-components';
+import {
+  OsdsDatagrid,
+  OsdsMessage,
+  OsdsText,
+} from '@ovhcloud/ods-components/react';
+import {
+  ODS_MESSAGE_TYPE,
+  ODS_TEXT_LEVEL,
+  ODS_TEXT_SIZE,
+  OdsDatagridColumn,
+} from '@ovhcloud/ods-components';
+import { ODS_THEME_COLOR_INTENT } from '@ovhcloud/ods-common-theming';
 import { useNavigate } from 'react-router-dom';
+import {
+  ovhLocaleToI18next,
+  useOvhTracking,
+} from '@ovh-ux/manager-react-shell-client';
 import { VrackAssociationModal } from '@/components/VrackAssociationModal';
 import { reactFormatter } from '@/utils/ods-utils';
 import {
@@ -11,6 +25,8 @@ import {
   ActionsCell,
   ProductStatusCell,
   VrackIdCell,
+  CreatedAtCell,
+  RegionCell,
 } from '@/components/VrackServicesDataGridCells';
 import { useUpdateVrackServices, useVrackServicesList } from '@/utils/vs-utils';
 import { DeleteModal } from '@/components/DeleteModal';
@@ -23,6 +39,7 @@ export const VrackServicesDatagrid: React.FC = () => {
     string | undefined
   >(undefined);
   const { t, i18n } = useTranslation('vrack-services/listing');
+  const { trackClick } = useOvhTracking();
   const navigate = useNavigate();
   const {
     updateVS,
@@ -40,7 +57,11 @@ export const VrackServicesDatagrid: React.FC = () => {
       field: 'currentState.displayName',
       isSortable: true,
       formatter: reactFormatter(
-        <DisplayNameCell navigate={navigate} updateVS={updateVS} />,
+        <DisplayNameCell
+          navigate={navigate}
+          updateVS={updateVS}
+          trackClick={trackClick}
+        />,
       ),
     },
     {
@@ -53,7 +74,7 @@ export const VrackServicesDatagrid: React.FC = () => {
       title: t('region'),
       field: 'currentState.region',
       isSortable: true,
-      formatter: (region: string) => t(region),
+      formatter: reactFormatter(<RegionCell t={t} />),
     },
     {
       title: t('vrackId'),
@@ -70,12 +91,9 @@ export const VrackServicesDatagrid: React.FC = () => {
       title: t('createdAt'),
       field: 'createdAt',
       isSortable: true,
-      formatter: (createdAt: string) => {
-        const date = new Date(createdAt);
-        return date.toString() !== 'Invalid Date'
-          ? date.toLocaleDateString(i18n.language)
-          : '-';
-      },
+      formatter: reactFormatter(
+        <CreatedAtCell locale={ovhLocaleToI18next(i18n.language)} />,
+      ),
     },
     {
       title: t('actions'),
@@ -94,10 +112,13 @@ export const VrackServicesDatagrid: React.FC = () => {
           removable
           onOdsRemoveClick={hideError}
         >
-          {t('updateError', {
-            error: updateError?.response.data.message,
-            interpolation: { escapeValue: false },
-          })}
+          <OsdsText
+            level={ODS_TEXT_LEVEL.body}
+            size={ODS_TEXT_SIZE._400}
+            color={ODS_THEME_COLOR_INTENT.text}
+          >
+            {t('updateError', { error: updateError?.response.data.message })}
+          </OsdsText>
         </OsdsMessage>
       )}
       <OsdsDatagrid
@@ -109,6 +130,7 @@ export const VrackServicesDatagrid: React.FC = () => {
         noResultLabel={t('emptyDataGridMessage')}
       />
       <VrackAssociationModal
+        dataTrackingPath="listing"
         vrackServicesId={associateModalVisible}
         closeModal={() => setAssociateModalVisible(undefined)}
       />

@@ -6,17 +6,20 @@ import {
   ODS_MESSAGE_TYPE,
   ODS_ICON_NAME,
   ODS_ICON_SIZE,
+  ODS_TEXT_LEVEL,
+  ODS_TEXT_SIZE,
 } from '@ovhcloud/ods-components';
 import {
   OsdsMessage,
   OsdsIcon,
   OsdsButton,
   OsdsSpinner,
+  OsdsText,
 } from '@ovhcloud/ods-components/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ODS_THEME_COLOR_INTENT } from '@ovhcloud/ods-common-theming';
-import { ShellContext } from '@ovh-ux/manager-react-shell-client';
+import { useOvhTracking } from '@ovh-ux/manager-react-shell-client';
 import { OnboardingLayout } from '@/components/layout-helpers/OnboardingLayout';
 import onboardingImgSrc from '@/assets/onboarding-img.png';
 import { isEditable, useVrackService } from '@/utils/vs-utils';
@@ -29,18 +32,16 @@ const Subnets: React.FC = () => {
   const { data: vrackServices, isLoading } = useVrackService();
   const { id } = useParams();
   const navigate = useNavigate();
-  const {
-    shell: { tracking },
-  } = React.useContext(ShellContext);
+  const { trackClick } = useOvhTracking();
 
-  const navigateToCreateSubnetPage = () =>
+  const navigateToCreateSubnetPage = async () => {
+    trackClick({
+      path: 'subnets',
+      value: '::create-subnet',
+      type: 'action',
+    });
     navigate(urls.createSubnet.replace(':id', id));
-
-  React.useEffect(() => {
-    if (!isLoading) {
-      tracking.trackPage({ name: 'vrack-services::subnets', level2: '0' });
-    }
-  }, [isLoading]);
+  };
 
   if (isLoading) {
     return (
@@ -74,7 +75,13 @@ const Subnets: React.FC = () => {
   return (
     <PageLayout noBreacrumb>
       <OsdsMessage className="mt-4" type={ODS_MESSAGE_TYPE.info}>
-        {t('betaSubnetLimitMessage')}
+        <OsdsText
+          level={ODS_TEXT_LEVEL.body}
+          size={ODS_TEXT_SIZE._400}
+          color={ODS_THEME_COLOR_INTENT.text}
+        >
+          {t('betaSubnetLimitMessage')}
+        </OsdsText>
       </OsdsMessage>
       <OsdsButton
         // Disabled because for the beta user can only have 1 subnet per vRack Services
@@ -87,7 +94,6 @@ const Subnets: React.FC = () => {
         variant={ODS_BUTTON_VARIANT.stroked}
         color={ODS_THEME_COLOR_INTENT.primary}
         onClick={navigateToCreateSubnetPage}
-        data-tracking="vrack-services::subnets::create-subnet"
       >
         {t('createSubnetButtonLabel')}
         <span slot="start">
