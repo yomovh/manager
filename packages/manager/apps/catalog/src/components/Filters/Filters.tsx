@@ -25,6 +25,7 @@ interface FiltersProps {
   setLocalSearchValue: React.Dispatch<React.SetStateAction<string>>;
   setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
   setSelectedUniverses: React.Dispatch<React.SetStateAction<string[]>>;
+  setIsRouterInitialized: React.Dispatch<React.SetStateAction<boolean>>;
   onApply: () => void;
 }
 
@@ -34,6 +35,7 @@ const Filters: React.FC<FiltersProps> = ({
   setLocalSearchValue,
   setSelectedCategories: setParentSelectedCategories,
   setSelectedUniverses: setParentSelectedUniverses,
+  setIsRouterInitialized,
   onApply,
 }) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -59,6 +61,7 @@ const Filters: React.FC<FiltersProps> = ({
         setSelectedUniverses(universes);
         setParentSelectedUniverses(universes);
       }
+      setIsRouterInitialized(true);
     }
   }, [searchParams, products]);
 

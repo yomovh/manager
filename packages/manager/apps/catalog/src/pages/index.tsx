@@ -25,7 +25,9 @@ export default function Catalog() {
   const [searchText, setSearchText] = React.useState('');
   const [categories, setCategories] = React.useState<string[]>([]);
   const [universes, setUniverses] = React.useState<string[]>([]);
-  const [routerInitiated, setRouterInitiated] = React.useState<boolean>(false);
+  const [isRouterInitialized, setIsRouterInitialized] = React.useState<boolean>(
+    false,
+  );
   const { results, products, isLoading, error } = useCatalog({
     categories,
     universes,
@@ -39,13 +41,11 @@ export default function Catalog() {
         categories,
         universes,
       );
-      if (routerInitiated) {
+      if (isRouterInitialized) {
         setSearchParams(customSearchParams);
-      } else if (customSearchParams.size !== 0) {
-        setRouterInitiated(true);
       }
     }
-  }, [searchText, categories, universes, products]);
+  }, [searchText, categories, universes, products, isRouterInitialized]);
 
   const getResultsNumber = () => {
     if (isLoading) return '';
@@ -73,6 +73,7 @@ export default function Catalog() {
         setSelectedCategories={setCategories}
         setSelectedUniverses={setUniverses}
         setSearchValue={setSearchText}
+        setIsRouterInitialized={setIsRouterInitialized}
       />
       <OsdsDivider separator />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-5 pt-3">
