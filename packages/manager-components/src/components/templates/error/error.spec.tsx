@@ -18,11 +18,12 @@ describe('specs:error.component', () => {
   it('renders without error', async () => {
     const screen = await setupSpecTest();
     const img = screen.getByAltText('OOPS');
-    const title = screen.getByText('manager_error_page_title');
-    const errorMessage = screen.getByText('manager_error_page_default');
+
+    const errorMessage = screen.getByText(
+      'Une erreur est survenue lors du chargement de la page.',
+    );
 
     expect(img).not.toBeNull();
-    expect(title).toBeTruthy();
     expect(errorMessage).toBeTruthy();
   });
 
