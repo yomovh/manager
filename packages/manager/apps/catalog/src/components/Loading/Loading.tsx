@@ -1,4 +1,3 @@
-import React from 'react';
 import { OsdsSkeleton } from '@ovhcloud/ods-components/react/';
 
 export default function Loading() {
