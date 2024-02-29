@@ -3,6 +3,9 @@ import React from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { TRANSLATE_NAMESPACE } from '../constants';
 
+import {OsdsText} from '@ovhcloud/ods-components/react'
+import { ODS_TEXT_LEVEL, ODS_TEXT_SIZE } from '@ovhcloud/ods-components';
+import { ODS_THEME_COLOR_INTENT } from '@ovhcloud/ods-common-theming';
 type Props = {
   cssBaseClassName?: string;
   user?: User;
@@ -20,24 +23,29 @@ const UserDetails = ({
       {
         <>
           {organisation && (
-            <span className={`d-block ${cssBaseClassName}_text-small`}>
-              {organisation}
-            </span>
+
+            <OsdsText color={ODS_THEME_COLOR_INTENT.text}
+            level={ODS_TEXT_LEVEL.body}
+            size={ODS_TEXT_SIZE._400} className='block'>{organisation}</OsdsText>
           )}
-          <span className={`d-block ${cssBaseClassName}_text-small text-break`}>
+          <OsdsText color={ODS_THEME_COLOR_INTENT.text}
+            level={ODS_TEXT_LEVEL.body}
+            size={ODS_TEXT_SIZE._400} className='block'>
             <Trans
               t={t}
               i18nKey="user_account_menu_notification_email"
               values={{ email }}
             ></Trans>
-          </span>
+          </OsdsText>
         </>
       }
 
       {email !== nichandle && (
-        <span className={`d-block ${cssBaseClassName}_text-small`}>
+       <OsdsText color={ODS_THEME_COLOR_INTENT.text}
+       level={ODS_TEXT_LEVEL.body}
+       size={ODS_TEXT_SIZE._400} className='block'>
           {nichandle}
-        </span>
+          </OsdsText>
       )}
     </p>
   );

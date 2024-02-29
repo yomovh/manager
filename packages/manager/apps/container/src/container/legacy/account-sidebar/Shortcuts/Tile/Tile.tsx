@@ -4,6 +4,9 @@ import { useTranslation } from 'react-i18next';
 
 import { useShell } from '@/context';
 import { TRANSLATE_NAMESPACE } from '../../constants';
+import {OsdsTile, OsdsText} from '@ovhcloud/ods-components/react'
+import { ODS_TEXT_LEVEL, ODS_TEXT_SIZE, ODS_TILE_VARIANT } from '@ovhcloud/ods-components';
+import { ODS_THEME_COLOR_INTENT } from '@ovhcloud/ods-common-theming';
 
 import { Shortcut } from './shortcut';
 
@@ -15,7 +18,6 @@ const Tile = ({ shortcut = {} as Shortcut }: Props): JSX.Element => {
   const { t } = useTranslation(TRANSLATE_NAMESPACE);
   const shell = useShell();
 
-  const cssClassName = 'manager-account-sidebar-shortcuts-tile';
   const translationBase = 'user_account_menu_shortcuts_tile';
 
   const handleShortcutClick = (param: Shortcut) => {
@@ -28,22 +30,25 @@ const Tile = ({ shortcut = {} as Shortcut }: Props): JSX.Element => {
   };
 
   return (
-    <div className={cssClassName}>
-      <a
-        href={shortcut.url}
-        target="_top"
-        onClick={() => handleShortcutClick(shortcut)}
+
+    <div className="m-1">
+    <a
+      href={shortcut.url}
+      target="_top"
+      onClick={() => handleShortcutClick(shortcut)} className="block"
+    >
+      <OsdsTile hoverable variant={ODS_TILE_VARIANT.stroked} color={ODS_THEME_COLOR_INTENT.primary}>{shortcut.icon}</OsdsTile>
+      <OsdsText
+        color={ODS_THEME_COLOR_INTENT.text}
+        level={ODS_TEXT_LEVEL.body}
+        size={ODS_TEXT_SIZE._200}
+        className='font-bold'
       >
-        <span
-          className={`${cssClassName}__icon oui-icon ${shortcut.icon}`}
-          aria-hidden="true"
-        ></span>
-        <span className={`${cssClassName}__description`}>
-          {t(`${translationBase}_${shortcut.id}`)}
-        </span>
-      </a>
-    </div>
-  );
+        {t(`${translationBase}_${shortcut.id}`)}
+      </OsdsText>
+    </a>
+  </div>
+);
 };
 
 export default Tile;

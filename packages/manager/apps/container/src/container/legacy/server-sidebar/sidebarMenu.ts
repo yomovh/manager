@@ -130,8 +130,7 @@ export function filterBySearch(
           return;
           // if it's a leaf item, reveal all of his parents in the tree
         }
-          revealParents(item);
-
+        revealParents(item);
       }
     }
     // perform the search on each subItems
@@ -250,8 +249,7 @@ export async function selectActiveItem(
       );
       return matchingSubItem || item;
     }
-      return null;
-
+    return null;
   };
 
   unselectAll(menu);

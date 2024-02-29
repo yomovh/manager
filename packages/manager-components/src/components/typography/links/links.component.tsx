@@ -48,7 +48,7 @@ export const Links: React.FC<LinksProps> = ({
   }
 
   return (
-    <div className="mb-5">
+    <div>
       <OsdsLink
         color={ODS_THEME_COLOR_INTENT.primary}
         download={download}

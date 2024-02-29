@@ -7,14 +7,17 @@ import { TRANSLATE_NAMESPACE } from '../constants';
 
 import useUserInfos from './useUserInfos';
 
+import {OsdsChip} from '@ovhcloud/ods-components/react'
+import {ODS_CHIP_SIZE } from '@ovhcloud/ods-components';
+import { ODS_THEME_COLOR_INTENT } from '@ovhcloud/ods-common-theming';
+
+
 type Props = {
-  cssBaseClassName?: string;
   translationBase?: string;
   user?: User;
 };
 
 const UserRole = ({
-  cssBaseClassName = '',
   translationBase = '',
   user = {} as User,
 }: Props): JSX.Element => {
@@ -23,16 +26,12 @@ const UserRole = ({
 
   return (
     <div
-      className={`${cssBaseClassName}_user-name mb-2`}
+      className="mb-2"
       data-navi-id="account-sidebar-block"
     >
       {role && (
         <div>
-          <span
-            className={`${cssBaseClassName}_role oui-badge oui-badge_warning`}
-          >
-            {t(`${translationBase}_role_${role}`)}
-          </span>
+          <OsdsChip size={ODS_CHIP_SIZE.sm} color={ODS_THEME_COLOR_INTENT.warning} inline><span className='font-bold'>{t(`${translationBase}_role_${role}`)}</span></OsdsChip>
         </div>
       )}
     </div>
