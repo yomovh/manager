@@ -7,6 +7,7 @@
 }
 
 .menuContent {
+  & > div { border-radius: 0.5rem; }
   strong {
     font-weight: 600;
   }
