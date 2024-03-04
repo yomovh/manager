@@ -153,7 +153,6 @@ export default class UpscaleController {
 
     const pricingMode = UpscaleService.convertPricingMode(
       renewPricing.pricingMode,
-      this.pricingRenewPeriod,
     );
 
     const isUpfrontMode = pricingMode === PRICING_MODES.UPFRONT;
@@ -207,7 +206,6 @@ export default class UpscaleController {
         currency: this.connectedUser.currency.code,
         pricingMode: UpscaleService.convertPricingMode(
           renewPricing.pricingMode,
-          this.pricingRenewPeriod,
         ),
         unit: Price.UNITS.MICROCENTS,
         totalPrice: renewPricing.priceInUcents,
