@@ -130,7 +130,7 @@ export default function ListingPage() {
     setSorting(sorts[0].id, sorts[0].desc);
   };
 
-  const hrefAdd = useHref(`./add`);
+  const hrefAdd = useHref(`./new`);
 
   return (
     <>
