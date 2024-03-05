@@ -91,6 +91,7 @@
         <div
             data-ng-switch-when="sshPubKey"
             class="float-right sshkey-switch"
+            data-ng-model="model.keyIsValid"
             data-sshkey-switch
             data-sshkey-switch-key="{{$ctrl.installation.input[input.name]}}"
         ></div>
@@ -102,6 +103,10 @@
             rows="{{$ctrl.inputRules.sshPubKey.maxsize}}"
             name="{{input.name}}"
             data-ng-pattern="$ctrl.inputRules.sshPubKey.pattern"
+            spellcheck="false"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
             placeholder="{{:: 'server_configuration_installation_inputs_item_placeholder' | translate:{ t0: 'sshPubKey' } }}. {{:: 'server_configuration_installation_inputs_item_placeholder_example' | translate:{ t0: $ctrl.inputRules.sshPubKey.placeholder } }}"
         >
         </textarea>
@@ -126,6 +131,10 @@
                                 data-ng-init="key = $ctrl.keyValueInit(input.name, 'key')"
                                 placeholder="{{:: 'server_configuration_installation_inputs_item_placeholder' | translate:{ t0: 'key' } }}"
                                 data-ng-pattern="$ctrl.inputRules.keyValue.key.pattern"
+                                spellcheck="false"
+                                autocomplete="off"
+                                autocapitalize="off"
+                                autocorrect="off"
                                 maxlength="{{$ctrl.inputRules.keyValue.key.maxsize}}"
                             />
                         </oui-field>
