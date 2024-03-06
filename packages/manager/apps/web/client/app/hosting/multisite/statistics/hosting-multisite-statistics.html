@@ -54,12 +54,14 @@
         data-ng-if="!$ctrl.isLoadingStatistics && $ctrl.chart"
         class="chart-container"
         style="height: 320px;"
-        data-wuc-chartjs="$ctrl.chart"
+        data-chart
+        data-chartjs="$ctrl.chart"
+        data-auto-reload="true"
     ></div>
-    <oui-message
-        data-ng-if="$ctrl.migration"
-        type="info">
-        <span data-translate="hosting_multisite_statistics_changing_datavis_tool"></span>
+    <oui-message data-ng-if="$ctrl.migration" type="info">
+        <span
+            data-translate="hosting_multisite_statistics_changing_datavis_tool"
+        ></span>
     </oui-message>
     <div class="text-center" data-ng-if="$ctrl.isLoadingStatistics">
         <oui-spinner></oui-spinner>

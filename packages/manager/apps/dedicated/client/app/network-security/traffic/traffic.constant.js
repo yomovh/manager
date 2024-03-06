@@ -31,52 +31,54 @@ export const CHART = {
   options: {
     responsive: true,
     maintainAspectRatio: true,
-    legend: {
-      position: 'bottom',
-      display: true,
+    data: {
+      datasets: [],
     },
-    elements: {
-      line: {
-        fill: true,
-        tension: 0,
-        borderWidth: 2,
+    options: {
+      elements: {
+        line: {
+          fill: true,
+          tension: 0,
+          borderWidth: 2,
+        },
+        point: {
+          radius: 0,
+        },
       },
-      point: {
-        radius: 0,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          display: true,
+        },
+        interaction: {
+          intersect: false,
+          mode: 'nearest',
+          axis: 'x',
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+        },
       },
-    },
-    interaction: {
-      intersect: false,
-      mode: 'nearest',
-      axis: 'x',
-    },
-    tooltips: {
-      mode: 'label',
-      intersect: false,
-    },
-    scales: {
-      yAxes: [
-        {
+      scales: {
+        y: {
           display: true,
           type: 'linear',
           position: 'left',
-          ticks: {
-            min: 0,
-            beginAtZero: true,
-          },
-          scaleLabel: {
+          min: 0,
+          beginAtZero: true,
+          title: {
             display: true,
           },
-          gridLines: {
+          grid: {
             drawBorder: true,
             display: false,
           },
         },
-      ],
-      xAxes: [
-        {
+
+        x: {
           display: true,
-          gridLines: {
+          grid: {
             offsetGridLines: true,
             display: false,
           },
@@ -88,12 +90,12 @@ export const CHART = {
           },
           time: {
             displayFormats: {
-              hour: 'YYYY-MM-DD HH:MM',
+              hour: 'yyyy-MM-dd HH:MM',
             },
           },
           type: 'time',
         },
-      ],
+      },
     },
   },
   units: ['b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb'],
