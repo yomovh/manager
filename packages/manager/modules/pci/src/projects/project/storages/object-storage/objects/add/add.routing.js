@@ -36,6 +36,21 @@ export default /* @ngInject */ ($stateProvider) => {
           );
         }),
       goBack: /* @ngInject */ (goToStorageContainers) => goToStorageContainers,
+      encryptionAlgorithms: /* @ngInject */ ($http) =>
+        $http
+          .get('/cloud.json')
+          .then(
+            ({ data: { models } }) =>
+              models['cloud.storage.EncryptionAlgorithmEnum']?.enum || [],
+          ),
+      encryptionAvailable: /* @ngInject */ (ovhFeatureFlipping) =>
+        ovhFeatureFlipping
+          .checkFeatureAvailability('key-management-system:storage-encryption')
+          .then((feature) =>
+            feature.isFeatureAvailable(
+              'key-management-system:storage-encryption',
+            ),
+          ),
       cancelCreate: /* @ngInject */ ($state, projectId) => () =>
         $state.go('pci.projects.project.storages.object-storage', {
           projectId,
