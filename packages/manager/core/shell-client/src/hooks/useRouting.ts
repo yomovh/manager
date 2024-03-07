@@ -1,4 +1,5 @@
-import { useShell } from './useShell';
+import { useContext } from 'react';
+import ShellContext from '../ShellContext';
 
 /**
  * @deprecated use ShellContext directly
