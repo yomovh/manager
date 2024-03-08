@@ -36,8 +36,21 @@
         <oui-spinner></oui-spinner>
     </div>
     <div data-ng-if="!$ctrl.loading">
-        <div class="bg-light border my-4 p-4">
-            <div data-ng-if="$ctrl.data.details.totals">
+        <div class="col-lg-6 bg-light border my-4 p-4">
+            <h4
+                class="mb-0"
+                data-translate="cpbhd_monthly_bill_header"
+                data-translate-values="$ctrl.getBillingDateInfo()"
+            ></h4>
+            <span
+                data-ng-if="$ctrl.isSubsidiaryWithPostPaidUsageBilling"
+                data-translate="cpbhd_monthly_bill_description"
+                data-translate-values="$ctrl.getBillingDateInfo()"
+            ></span>
+            <div
+                class="h2 font-weight-bold mb-0 mt-2"
+                data-ng-if="$ctrl.data.details.totals"
+            >
                 <span
                     data-ng-bind="$ctrl.data.details.totals.total.toFixed(2)"
                 ></span
@@ -47,32 +60,46 @@
                 ></span>
             </div>
             <a
+                data-ng-if="$ctrl.currentMonthlyBillingBill"
                 data-ng-href="{{ $ctrl.currentMonthlyBillingBill.pdfUrl }}"
                 target="_top"
             >
                 <span
-                    data-ng-if="$ctrl.currentMonthlyBillingBill"
                     data-translate="cpbhd_bill_pdf_link"
                     data-translate-values="$ctrl.getBillingDateInfo()"
                 ></span>
                 <i
-                    data-ng-if="$ctrl.currentMonthlyBillingBill"
                     class="fa fa-file-pdf-o"
                     title="{{ :: 'cpbhd_bill_pdf_tooltip' | translate }}"
                 ></i>
             </a>
-            <a
-                data-ng-href="{{ $ctrl.billingUrl }}"
-                data-translate="cpbhd_bill_link"
-                target="_top"
-            ></a>
+            <div>
+                <a
+                    class="align-middle"
+                    data-ng-href="{{ $ctrl.billingUrl }}"
+                    target="_top"
+                >
+                    <span data-translate="cpbhd_bill_link"></span>
+                    <i
+                        class="oui-icon oui-icon-arrow-right"
+                        aria-hidden="true"
+                    ></i>
+                </a>
+            </div>
         </div>
         <div class="row">
             <div class="col-lg-6">
                 <oui-tile>
                     <span
+                        ng-if="!$ctrl.isSubsidiaryWithPostPaidUsageBilling"
                         class="oui-heading_4 oui-tile__title"
                         data-translate="cpbhd_monthly_header"
+                        data-translate-values="$ctrl.getBillingDateInfo()"
+                    ></span>
+                    <span
+                        ng-if="$ctrl.isSubsidiaryWithPostPaidUsageBilling"
+                        class="oui-heading_4 oui-tile__title"
+                        data-translate="cpbhd_monthly_post_paid_header"
                         data-translate-values="$ctrl.getBillingDateInfo()"
                     ></span>
                     <monthly-resource-list

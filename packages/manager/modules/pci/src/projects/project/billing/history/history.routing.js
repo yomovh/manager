@@ -167,6 +167,15 @@ export default /* @ngInject */ ($stateProvider) => {
         }),
       breadcrumb: /* @ngInject */ ($translate) =>
         $translate.instant('cpbc_tab_history'),
+      isSubsidiaryWithPostPaidUsageBilling: /* @ngInject */ (
+        ovhFeatureFlipping,
+      ) =>
+        ovhFeatureFlipping
+          .checkFeatureAvailability(['billing:postPaid'])
+          .then((postPaidBillingAvailability) =>
+            postPaidBillingAvailability.isFeatureAvailable('billing:postPaid'),
+          )
+          .catch(() => false),
     },
   });
 };
