@@ -56,7 +56,15 @@ export default /* @ngInject */ ($stateProvider, $urlRouterProvider) => {
               'X-Pagination-Size': 5,
             },
           })
-          .then((data) => data.data.length),
+          .then((data) => data.data.length)
+          .catch((error) => {
+            // temp hack: if get /services is forbidden, do not throw error to prevent redirection on error-page
+            // cf MANAGER-13620
+            if (error.status === 403) {
+              return;
+            }
+            throw error;
+          }),
       trackingPrefix: () => 'hub::dashboard::activity::payment-status',
       refresh: /* @ngInject */ ($http) => (type) =>
         $http
