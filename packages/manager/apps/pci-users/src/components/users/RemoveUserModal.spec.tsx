@@ -4,7 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import queryClient from '@/queryClient';
-import RemoveUserModal from '@/components/users/RemoveUserModal';
+import RemoveUserModal from './RemoveUserModal';
 import { useRemoveUser } from '@/hooks/useUser';
 
 vi.mock('@ovh-ux/manager-react-shell-client', async () => ({

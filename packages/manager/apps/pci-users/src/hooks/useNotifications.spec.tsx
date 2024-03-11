@@ -1,7 +1,7 @@
 import { describe, expect } from 'vitest';
 import { useEffect } from 'react';
 import { render } from '@testing-library/react';
-import { useNotifications, NotificationType } from '@/hooks/useNotifications';
+import { useNotifications, NotificationType } from './useNotifications';
 
 function AddNotification() {
   const { addNotification } = useNotifications();
@@ -22,7 +22,13 @@ function ClearNotifications() {
 
 function NotificationList() {
   const { notifications } = useNotifications();
-  return notifications.map((n, id) => <span key={id}>{n.content}</span>);
+  return (
+    <>
+      {notifications.map((n, id) => (
+        <span key={id}>{n.content}</span>
+      ))}
+    </>
+  );
 }
 
 describe('useNotifications', () => {

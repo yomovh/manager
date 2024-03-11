@@ -4,7 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import queryClient from '@/queryClient';
-import EditRolesModal from '@/components/users/EditRolesModal';
+import EditRolesModal from './EditRolesModal';
 import { useUpdateUserRoles } from '@/hooks/useRole';
 
 vi.mock('@ovh-ux/manager-react-shell-client', async () => ({
