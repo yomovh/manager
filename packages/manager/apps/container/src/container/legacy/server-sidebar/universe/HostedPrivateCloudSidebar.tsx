@@ -188,14 +188,12 @@ export default function HostedPrivateCloudSidebar() {
           },
           feature['vrack-services'] && {
             id: 'dedicated-vrackservices',
+            badge: 'beta',
             label: t('sidebar_vrack_services'),
             icon: getIcon('oui-icon oui-icon-vRack-services_concept'),
             routeMatcher: new RegExp('^/vrack-services'),
             async loader() {
-              const items = await loadServicesV2({
-                applicationId: 'vrack-services',
-                path: '/vrackServices/resource'
-              });
+              const items = await loadServices('/vrackServices/resource');
 
               return [
                 {
